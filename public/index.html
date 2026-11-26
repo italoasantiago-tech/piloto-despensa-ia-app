@@ -853,8 +853,12 @@ function ligarVoz(){
   let base = "";
   dict.onPartial(({text}) => { ta.value = (base ? base+" " : "") + text; });
   dict.onFinal(({text}) => { base = (base ? base+" " : "") + text; ta.value = base; });
-  dict.onState(({state:s}) => {
+  dict.onState(({state:s, reason}) => {
     const on = s==="listening";
+    const stl = $("#stLer");
+    if (on) setStatus(stl, "Ouvindo… fale os itens e toque no microfone de novo para parar.");
+    else if (reason && reason!=="stopped") setStatus(stl, reason==="network" ? "Sem conexão para o reconhecimento de voz. Você pode digitar." : "O microfone parou. Toque de novo ou digite.", true);
+    else setStatus(stl, "");
     btn.setAttribute("aria-label", on ? "Parar de gravar" : "Falar"); btn.title = on ? "Parar de gravar" : "Falar";
     btn.classList.toggle("rec", on);
   });
@@ -1539,32 +1543,41 @@ function criarSampleWeb(){
 function criarDitadoWeb(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return null;
-  let rec = null, onP = () => {}, onF = () => {}, onS = () => {};
+  let rec = null, querendo = false, parcialPend = "", onP = () => {}, onF = () => {}, onS = () => {};
+  const fechaParcial = () => { if (parcialPend.trim()){ onF({text:parcialPend.trim()}); } parcialPend = ""; };
+  function abre(primeira, ok, falha){
+    let iniciou = false;
+    rec = new SR();
+    rec.lang = "pt-BR"; rec.interimResults = true; rec.continuous = false; // reinicia sozinho para continuar ouvindo
+    rec.onstart = () => { iniciou = true; if (primeira){ onS({state:"listening"}); ok(); } };
+    rec.onresult = ev => {
+      let parcial = "", final = "";
+      for (let i = ev.resultIndex; i < ev.results.length; i++){ const r = ev.results[i]; if (r.isFinal) final += r[0].transcript; else parcial += r[0].transcript; }
+      if (final.trim()){ parcialPend = ""; onF({text:final.trim()}); }
+      else if (parcial.trim()){ parcialPend = parcial; onP({text:parcial.trim()}); }
+    };
+    rec.onerror = e => {
+      if (e.error==="no-speech" || e.error==="aborted") return;
+      querendo = false;
+      onS({state:"idle", reason:e.error});
+      if (!iniciou && primeira) falha({code: (e.error==="not-allowed" || e.error==="service-not-allowed") ? "not_granted" : e.error});
+    };
+    rec.onend = () => {
+      fechaParcial();
+      if (querendo){ setTimeout(() => { if (querendo){ try { abre(false); } catch(_){ querendo = false; onS({state:"idle", reason:"stopped"}); } } }, 150); }
+      else onS({state:"idle", reason:"stopped"});
+    };
+    rec.start();
+  }
   return {
     onPartial(f){ onP = f; }, onFinal(f){ onF = f; }, onState(f){ onS = f; },
     start(){
       return new Promise((ok, falha) => {
-        let iniciou = false;
-        rec = new SR();
-        rec.lang = "pt-BR"; rec.interimResults = true;
-        rec.continuous = !/Android/i.test(navigator.userAgent); // no Android o modo contínuo repete frases
-        rec.onstart = () => { iniciou = true; onS({state:"listening"}); ok(); };
-        rec.onresult = ev => {
-          let parcial = "", final = "";
-          for (let i = ev.resultIndex; i < ev.results.length; i++){ const r = ev.results[i]; if (r.isFinal) final += r[0].transcript; else parcial += r[0].transcript; }
-          if (final.trim()) onF({text:final.trim()});
-          if (parcial.trim()) onP({text:parcial.trim()});
-        };
-        rec.onerror = e => {
-          if (e.error==="no-speech" || e.error==="aborted") return;
-          onS({state:"idle", reason:e.error});
-          if (!iniciou) falha({code: (e.error==="not-allowed" || e.error==="service-not-allowed") ? "not_granted" : e.error});
-        };
-        rec.onend = () => onS({state:"idle", reason:"stopped"});
-        try { rec.start(); } catch(e){ falha({code:"erro"}); }
+        querendo = true; parcialPend = "";
+        try { abre(true, ok, falha); } catch(e){ querendo = false; falha({code:"erro"}); }
       });
     },
-    async stop(){ if (rec) rec.stop(); }
+    async stop(){ querendo = false; if (rec) { try { rec.stop(); } catch(_){} } }
   };
 }
 
