@@ -11,12 +11,12 @@ const PAGINA = path.join(path.dirname(fileURLToPath(import.meta.url)), "public",
 const MODELO_RAPIDO = process.env.MODEL_FAST || "claude-haiku-5-5";
 const MODELO_PRINCIPAL = process.env.MODEL_MAIN || "claude-sonnet-5-5";
 const MODELOS = { quick: MODELO_RAPIDO, default: MODELO_RAPIDO, complex: MODELO_PRINCIPAL };
-const MAX_TOKENS = { quick: 1500, default: 3000, complex: 4500 };
+const MAX_TOKENS = { quick: 1500, default: 3000, complex: 6000 };
 const MAX_PROMPT = 16_000;
 const HORA = 3_600_000;
 const DIA = 24 * HORA;
 
-const SISTEMA = `Você é o motor de receitas do app Despensa Fit. Atenda somente pedidos sobre alimentos, despensa, receitas e cozinha, sempre no formato pedido no texto do usuário. Se o pedido for sobre qualquer outro assunto, responda apenas {"erro":"fora_do_escopo"}.`;
+const SISTEMA = `Você é o motor de receitas do app Despensa Fit. Atenda pedidos sobre alimentos, despensa, receitas e cozinha, sempre no formato pedido no texto do usuário. Só se o pedido for claramente sobre outro assunto, sem relação com comida, responda apenas {"erro":"fora_do_escopo"}.`;
 
 const hash = (s) => createHash("sha256").update(s).digest();
 
@@ -60,7 +60,7 @@ export function montarWeb(app, opcoes = {}) {
   const chamarIA = chamador || (async ({ model, system, prompt, maxTokens }) => {
     cliente ??= new Anthropic({ timeout: 90_000, maxRetries: 2 });
     const r = await cliente.messages.create({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: prompt }] });
-    return { text: r.content.filter((b) => b.type === "text").map((b) => b.text).join(""), uso: r.usage };
+    return { text: r.content.filter((b) => b.type === "text").map((b) => b.text).join(""), uso: r.usage, parada: r.stop_reason };
   });
 
   let html = readFileSync(PAGINA);
@@ -106,11 +106,19 @@ export function montarWeb(app, opcoes = {}) {
 
     const t0 = agora();
     try {
-      const r = await chamarIA({ model: MODELOS[tier], system: SISTEMA, prompt, maxTokens: MAX_TOKENS[tier] });
-      console.log(`IA ${tier} código#${idx + 1} ${agora() - t0}ms tokens ${r.uso?.input_tokens ?? "?"}/${r.uso?.output_tokens ?? "?"}`);
+      let r;
+      try {
+        r = await chamarIA({ model: MODELOS[tier], system: SISTEMA, prompt, maxTokens: MAX_TOKENS[tier] });
+      } catch (e) {
+        // se o modelo principal falhar (sem acesso, sobrecarga...), tenta o modelo rápido em vez de ficar sem resposta
+        if (MODELOS[tier] === MODELO_RAPIDO) throw e;
+        console.error(`IA ${tier} código#${idx + 1}: modelo ${MODELOS[tier]} falhou (HTTP ${e?.status || "?"} ${String(e?.error?.error?.message || e?.message || "").slice(0, 160)}); usando ${MODELO_RAPIDO}`);
+        r = await chamarIA({ model: MODELO_RAPIDO, system: SISTEMA, prompt, maxTokens: MAX_TOKENS[tier] });
+      }
+      console.log(`IA ${tier} código#${idx + 1} ${agora() - t0}ms tokens ${r.uso?.input_tokens ?? "?"}/${r.uso?.output_tokens ?? "?"} fim=${r.parada ?? "?"}`);
       res.json({ text: String(r.text ?? "") });
     } catch (e) {
-      console.error(`IA ${tier} código#${idx + 1} falhou: HTTP ${e?.status || "?"} ${e?.name || ""}`);
+      console.error(`IA ${tier} código#${idx + 1} falhou: HTTP ${e?.status || "?"} ${e?.name || ""} ${String(e?.error?.error?.message || e?.message || "").slice(0, 200)}`);
       res.status(502).json({ erro: "ia" });
     }
   });

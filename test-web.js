@@ -92,5 +92,12 @@ await teste("falha da IA devolve 502 sem vazar detalhes", async () => {
   assert.equal(r.status, 502); assert.ok(!/sk-ant|SEGREDO/.test(t)); s.fechar();
 });
 
+await teste("se o modelo principal falhar, usa o rápido e ainda responde", async () => {
+  const modelos = [];
+  const s = await subir({ chamador: async (p) => { modelos.push(p.model); if (/sonnet/.test(p.model)) throw Object.assign(new Error("modelo indisponível"), { status: 404 }); return { text: '{"receitas":[]}', uso: {} }; } });
+  const r = await ia(s.base, { prompt: "a", tier: "complex" }, "ana-1234");
+  assert.equal(r.status, 200); assert.equal(modelos.length, 2); assert.match(modelos[1], /haiku/); s.fechar();
+});
+
 console.log(`\n${ok} testes do site passaram`);
 process.exit(process.exitCode || 0);
