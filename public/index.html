@@ -146,6 +146,7 @@ button.rec{background:var(--warn);color:#fff;border-color:var(--warn)}
 .item small{color:var(--muted)}
 .item button{border:none;background:transparent;min-height:32px;min-width:32px;padding:0;color:var(--muted);font-size:18px;line-height:1}
 .hint{font-size:14px;color:var(--muted)}
+.maisia{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px 0 4px;text-align:center}
 .status{font-size:14px}
 .status:empty{display:none}
 .status.err{color:var(--warn)}
@@ -1236,6 +1237,29 @@ $("#btnSugerir").addEventListener("click", async () => {
     const daNutri = verif.filter(v => !v.rec.autora && !v.rec.minha), doLivro = verif.filter(v => v.rec.autora), dasMinhas = verif.filter(v => v.rec.minha);
     [...daNutri, ...doLivro, ...dasMinhas].forEach(v => box.append(cardVerificada(v.rec, v.falta, v.motivo)));
 
+    box.append(blocoIA(despensa, verif));
+    if (verif.length) $("#filtros").hidden = false;
+    setStatus(st, verif.length ? "" : "Não achei receitas prontas com o que você tem. Peça ideias para a IA logo abaixo.");
+  } catch(e){
+    setStatus(st, erroAmigavel(e), true);
+  }
+  finally { btn.disabled = false; }
+});
+
+function blocoIA(despensa, verif){
+  const w = document.createElement("div"); w.className = "maisia"; w.id = "maisIA";
+  const b = document.createElement("button"); b.type = "button"; b.className = "primary"; b.id = "btnMaisIA";
+  b.textContent = "✨ Mais ideias com a IA";
+  const nota = document.createElement("p"); nota.className = "hint"; nota.textContent = "Gera 3 receitas novas com a IA. Pode levar alguns segundos.";
+  b.addEventListener("click", () => gerarIA(despensa, verif, b, w));
+  w.append(b, nota);
+  return w;
+}
+
+async function gerarIA(despensa, verif, btn, wrap){
+  const st = $("#stSug"), box = $("#resultado");
+  btn.disabled = true;
+  try {
     setStatus(st,"Montando e conferindo sugestões extras. Pode levar alguns segundos…",false,true);
     const jaSugeridas = verif.map(v => v.rec.nome).join("; ");
     const prompt =
@@ -1284,14 +1308,16 @@ Responda SOMENTE com JSON neste formato:
     const r = await sample.json(prompt, {modelTier:"complex", cache:false});
     const lista = (r && Array.isArray(r.receitas)) ? r.receitas : [];
     if (!lista.length) throw new Error("vazio");
+    wrap.remove();
     lista.forEach(x => box.append(cardIA(x)));
+    box.append(wrap); btn.textContent = "✨ Mais ideias com a IA"; 
     setStatus(st,"");
     $("#filtros").hidden = false;
   } catch(e){
     setStatus(st, erroAmigavel(e) + (verif.length ? " As receitas verificadas acima continuam valendo." : ""), true);
   }
   finally { btn.disabled = false; }
-});
+}
 
 /* ---------- casamento de itens e minhas receitas ---------- */
 const semAcento = s => norm(s).normalize("NFD").replace(/[̀-ͯ]/g,"");
