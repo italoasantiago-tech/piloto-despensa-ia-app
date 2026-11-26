@@ -44,17 +44,29 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--font-body)}
 main{max-width:1120px;margin:0 auto;padding:20px 16px 56px;display:flex;flex-direction:column;gap:16px}
-.topo{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.topbtns{position:absolute;top:14px;right:14px;z-index:30;display:flex;gap:8px}
-.btn-perfil{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:var(--surface)}
-header.topo{padding-right:168px}
-.btn-perfil .n{font-size:12px;background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px;min-width:20px;text-align:center}
-body{position:relative}
+.topo{display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;gap:12px}
+.topbtns{display:flex;gap:8px;flex:none}
+.btn-perfil{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;background:var(--surface);min-width:44px;padding:0 11px}
+header.topo>div:first-child{min-width:0}
+.btn-perfil .n{position:absolute;top:-5px;right:-5px;font-size:11px;font-weight:700;line-height:18px;background:var(--accent);color:var(--accent-ink);border-radius:999px;min-width:18px;height:18px;padding:0 5px;text-align:center}
 .btn-perfil .t{display:none}
-.abas{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;position:sticky;top:0;z-index:20}
+.abas{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
 .aba{flex:1;border:none;background:transparent;border-radius:9px;min-height:40px;padding:6px 10px;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .aba[aria-selected=true]{background:var(--sel);color:var(--sel-ink)}
+.aba svg{display:none}
 .aba .n{font-size:12px;background:var(--bg);color:var(--ink);border-radius:999px;padding:0 7px;min-width:20px}
+@media (max-width:899px){
+  main{padding-bottom:96px}
+  .abas{position:fixed;left:0;right:0;bottom:0;z-index:40;border:0;border-top:1px solid var(--line);border-radius:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));gap:2px}
+  .aba{flex-direction:column;gap:2px;min-height:54px;padding:4px 2px;font-size:12px;font-weight:600;min-width:0;position:relative;border-radius:12px}
+  .aba svg{display:block}
+  .aba[aria-selected=true]{background:transparent;color:var(--accent)}
+  .aba[aria-selected=true]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+  .aba .n{position:absolute;top:2px;left:calc(50% + 6px);font-size:10px;line-height:16px;min-width:16px;height:16px;padding:0 4px;background:var(--accent);color:var(--accent-ink);text-align:center}
+  .aba .n:empty,.aba .n[data-zero]{display:none}
+  .btn-perfil{min-height:42px}
+  .sub{font-size:14px}
+}
 .app{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
 body[data-aba=despensa] #colDir{display:none}
 body:not([data-aba=despensa]) #colEsq{display:none}
@@ -67,6 +79,7 @@ body[data-aba=sugestoes] section#paneSug,body[data-aba=favoritos] section#paneFa
 .icone{flex:none;width:44px;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .linha-add .primary{flex:1;min-width:0}
 dialog#perfilCard,dialog#recCard,dialog#acessoCard,dialog#despCard{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:20px;width:min(640px,94vw);max-height:90vh;overflow:auto;margin:auto}
+dialog:focus,dialog:focus-visible{outline:none}
 dialog#perfilCard::backdrop,dialog#recCard::backdrop,dialog#acessoCard::backdrop,dialog#despCard::backdrop{background:rgba(8,14,20,.6)}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg .chip{border-radius:9px;padding:5px 11px;font-size:14px}
@@ -92,14 +105,13 @@ button.mais{align-self:center}
   #colDir,body[data-aba=despensa] #colDir{display:flex!important}
   #colEsq{position:sticky;top:12px}
   .aba[data-aba=despensa]{display:none}
-  .abas{position:static;align-self:flex-start;min-width:340px}
+  .abas{align-self:flex-start;min-width:340px}
   .cta{position:static;background:none;padding:0;margin:0}
   .btn-perfil .t{display:inline}
-  header.topo{padding-right:430px}
   #resultado,#favLista{display:grid;grid-template-columns:1fr;gap:14px}
 }
 h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.15}
-h1{font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
+h1{font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:.01em;display:flex;align-items:center;gap:10px}
 .logo{flex:none;width:36px;height:36px;border-radius:10px;background:var(--sel);color:var(--sel-ink);display:grid;place-items:center}
 h1 em{font-style:normal;color:var(--accent)}
 h2{font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
@@ -159,7 +171,8 @@ button.rec{background:var(--warn);color:#fff;border-color:var(--warn)}
 .recipe .have{font-size:14px;color:var(--muted)}
 .recipe.ver{border-color:var(--ver);box-shadow:inset 4px 0 0 var(--ver)}
 .recipe.livro{border-color:var(--line);box-shadow:inset 4px 0 0 var(--muted)}
-.recipe h3.titulo{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.recipe h3.titulo{display:block}
+.recipe h3.titulo .selo-wrap{margin-left:6px;vertical-align:middle}
 .selo-wrap{position:relative;display:inline-flex}
 .selo-btn{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;color:var(--ver);cursor:pointer}
 .selo-btn.livro{color:var(--muted)}
@@ -181,23 +194,23 @@ input.inv,select.inv{border-color:var(--warn)}
 </head>
 <body>
 <main>
-  <div class="topbtns">
-  <button type="button" class="btn-perfil" id="btnDesp" aria-expanded="false" aria-label="Despensa" title="Despensa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5zM8 9l3-5M16 9l-3-5"/></svg><span class="t">Despensa</span><span class="n" id="contDesp" hidden></span></button>
-  <button type="button" class="btn-perfil" id="btnAddRec" aria-expanded="false" aria-label="Adicionar receita" title="Adicionar receita"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="t">Receita</span></button>
-  <button type="button" class="btn-perfil" id="btnPerfil" aria-expanded="false" aria-controls="perfilCard" aria-label="Meu perfil" title="Meu perfil"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="t">Meu perfil</span></button>
-  </div>
   <header class="topo">
     <div>
       <h1><span class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></span><span>Despensa <em>Fit</em></span></h1>
       <p class="sub">Diga o que tem em casa. Receba refeições práticas, brasileiras e a favor do seu objetivo.</p>
     </div>
+    <div class="topbtns">
+    <button type="button" class="btn-perfil" id="btnDesp" aria-expanded="false" aria-label="Despensa" title="Despensa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9h18l-2 11H5zM8 9l3-5M16 9l-3-5"/></svg><span class="t">Despensa</span><span class="n" id="contDesp" hidden></span></button>
+    <button type="button" class="btn-perfil" id="btnAddRec" aria-expanded="false" aria-label="Adicionar receita" title="Adicionar receita"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="t">Receita</span></button>
+    <button type="button" class="btn-perfil" id="btnPerfil" aria-expanded="false" aria-controls="perfilCard" aria-label="Meu perfil" title="Meu perfil"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="t">Meu perfil</span></button>
+    </div>
   </header>
 
-  <dialog id="perfilCard" aria-label="Meu perfil">
-    <div class="cab"><div><span class="t">Meu perfil</span><span class="s" id="perfilResumo"></span></div><button type="button" id="btnFechaPerfil">Fechar</button></div>
+  <dialog id="perfilCard" tabindex="-1" autofocus aria-label="Meu perfil">
+    <div class="cab"><div><span class="t">Meu perfil</span></div><button type="button" id="btnFechaPerfil">Fechar</button></div>
     <div class="grid">
       <div><label for="p-sexo">Sexo</label>
-        <select id="p-sexo"><option>Homem</option><option>Mulher</option></select></div>
+        <select id="p-sexo"><option value="">Não informar</option><option>Homem</option><option>Mulher</option></select></div>
       <div><label for="p-idade">Idade</label><input type="number" id="p-idade" inputmode="numeric" min="14" max="99"></div>
       <div><label for="p-altura">Altura (cm)</label><input type="number" id="p-altura" inputmode="numeric" min="120" max="230"></div>
       <div><label for="p-peso">Peso (kg)</label><input type="number" id="p-peso" inputmode="decimal" min="30" max="300" step="0.1"></div>
@@ -208,16 +221,18 @@ input.inv,select.inv{border-color:var(--warn)}
         <div class="chips" id="objChips"></div></div>
       <div><label for="p-restr">Restrições alimentares</label><input type="text" id="p-restr" placeholder="Nenhuma"></div>
       <div><label for="p-nao">O que você não gosta</label><input type="text" id="p-nao" placeholder="Ex.: fígado, quiabo"></div>
-      <div><label for="p-kcal">Meta de calorias por dia</label><input type="number" id="p-kcal" inputmode="numeric" placeholder="Definir com a nutricionista"></div>
-      <div><label for="p-prot">Meta de proteína por dia (g)</label><input type="number" id="p-prot" inputmode="numeric" placeholder="Definir com a nutricionista"></div>
+      <div><label for="p-kcal">Meta de calorias por dia</label><input type="number" id="p-kcal" inputmode="numeric" placeholder="Opcional"></div>
+      <div><label for="p-prot">Meta de proteína por dia (g)</label><input type="number" id="p-prot" inputmode="numeric" placeholder="Opcional"></div>
     </div>
     <div style="height:12px"></div>
     <span class="lbl">O que você tem para cozinhar</span>
     <div class="chips" id="equipChips"></div>
+    <div style="height:12px"></div>
+    <button type="button" class="acao txt" id="btnApagar">Apagar meus dados deste aparelho</button>
   
   </dialog>
 
-  <dialog id="despCard" aria-label="Despensa">
+  <dialog id="despCard" tabindex="-1" autofocus aria-label="Despensa">
     <div class="cab"><div><span class="t">Despensa</span><span class="s">O que você tem em casa</span></div><button type="button" id="btnFechaDesp">Fechar</button></div>
     <div style="display:flex;flex-direction:column;gap:14px">
     <div>
@@ -250,7 +265,7 @@ input.inv,select.inv{border-color:var(--warn)}
     </form>
   </dialog>
 
-  <dialog id="recCard" aria-label="Receita">
+  <dialog id="recCard" tabindex="-1" autofocus aria-label="Receita">
     <div class="cab"><div><span class="t" id="tituloRec">Adicionar receita</span></div><button type="button" id="btnFechaRec">Fechar</button></div>
     <div style="display:flex;flex-direction:column;gap:12px">
         <div class="banner" id="bannerEdit" hidden><span>Editando: <b id="nomeEdit"></b></span><button type="button" class="ghost" id="btnCancelaEdit">Cancelar</button></div>
@@ -265,10 +280,10 @@ input.inv,select.inv{border-color:var(--warn)}
   </dialog>
 
   <nav class="abas" role="tablist" aria-label="Seções">
-    <button type="button" class="aba" role="tab" data-aba="despensa" aria-selected="true">Montar</button>
-    <button type="button" class="aba" role="tab" data-aba="sugestoes" aria-selected="false">Sugestões</button>
-    <button type="button" class="aba" role="tab" data-aba="receitas" aria-selected="false">Receitas</button>
-    <button type="button" class="aba" role="tab" data-aba="favoritos" aria-selected="false">Favoritos <span class="n" id="contFav">0</span></button>
+    <button type="button" class="aba" role="tab" data-aba="despensa" aria-selected="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 3c-2.2 1.3-3 3.8-3 7h3v11"/></svg><span>Montar</span></button>
+    <button type="button" class="aba" role="tab" data-aba="sugestoes" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16v4M17 18h4"/></svg><span>Sugestões</span></button>
+    <button type="button" class="aba" role="tab" data-aba="receitas" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5zM4 20.5V21h16"/></svg><span>Receitas</span></button>
+    <button type="button" class="aba" role="tab" data-aba="favoritos" aria-selected="false"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg><span>Favoritos</span> <span class="n" id="contFav">0</span></button>
   </nav>
 
   <div class="app">
@@ -332,7 +347,7 @@ const NIVEIS = [
 ];
 
 const defaults = () => ({
-  perfil:{sexo:"Homem",idade:30,altura:189,peso:126,objetivos:["Emagrecer","Ganhar massa muscular","Definir o corpo"],restr:"Nenhuma",nao:"",kcal:2100,prot:"",equip:["Fogão"]},
+  perfil:{sexo:"",idade:"",altura:"",peso:"",objetivos:[],restr:"",nao:"",kcal:"",prot:"",equip:["Fogão"]},
   despensa:[],
   prefs:{curtidas:[], rejeitadas:{}, favoritos:[]},
   minhas:[],
@@ -634,6 +649,8 @@ function erroAmigavel(e){
   const c = e && e.code;
   if (c==="not_granted") return "Permissão negada. Aceite o uso da IA para o app funcionar.";
   if (c==="rate_limited") return (e && e.message) || "Muitas solicitações seguidas. Espere um instante e tente de novo.";
+  if (c==="servidor") return "O servidor não conseguiu responder agora. Tente de novo em instantes.";
+  if (c==="json") return "A resposta da IA veio incompleta. Tente de novo.";
   if (c==="auth") return "Digite o código de acesso para continuar.";
   if (c==="rede") return "Sem conexão. Confira a internet e tente de novo.";
   return "Não consegui concluir agora. Tente de novo em alguns segundos.";
@@ -674,10 +691,9 @@ function sanear(salvo){
   const d = defaults();
   if (!salvo || typeof salvo!=="object") return d;
   const sp = (salvo.perfil && typeof salvo.perfil==="object") ? salvo.perfil : {}, p = d.perfil;
-  if (["Homem","Mulher"].includes(sp.sexo)) p.sexo = sp.sexo;
+  if (["Homem","Mulher",""].includes(sp.sexo)) p.sexo = sp.sexo;
   for (const k of ["idade","altura","peso"]) p[k] = numEntre(sp[k], FAIXAS[k][0], FAIXAS[k][1], p[k]);
   for (const k of ["kcal","prot"]) p[k] = (sp[k]==="" || sp[k]==null) ? "" : numEntre(sp[k], FAIXAS[k][0], FAIXAS[k][1], "");
-  if ((salvo.v||1) < 2 && p.kcal==="") p.kcal = 2100;
   if (typeof sp.restr==="string") p.restr = txt(sp.restr,200);
   if (typeof sp.nao==="string") p.nao = txt(sp.nao,200);
   if (Array.isArray(sp.objetivos)) p.objetivos = OBJETIVOS.filter(o => sp.objetivos.includes(o));
@@ -724,17 +740,12 @@ function aplicarCarga(){
 
 /* ---------- perfil ---------- */
 const campos = {sexo:"p-sexo",idade:"p-idade",altura:"p-altura",peso:"p-peso",restr:"p-restr",nao:"p-nao",kcal:"p-kcal",prot:"p-prot"};
-function resumoPerfil(){
-  const p = state.perfil;
-  const obj = p.objetivos.length ? p.objetivos.join(", ").toLowerCase() : "sem objetivo escolhido";
-  $("#perfilResumo").textContent = `${p.sexo}, ${p.idade} anos · ${p.altura} cm · ${p.peso} kg · ${obj}`;
-}
 function ligarPerfil(){
   for (const [k,id] of Object.entries(campos)){
     const el = document.getElementById(id);
     el.addEventListener("input", () => {
       if (el.type==="number"){
-        if (el.value==="" && (k==="kcal" || k==="prot")) state.perfil[k] = "";
+        if (el.value===""){ state.perfil[k] = ""; el.classList.remove("inv"); el.removeAttribute("aria-invalid"); }
         else {
           const n = Number(el.value), f = FAIXAS[k];
           const ok = el.value!=="" && isFinite(n) && n>=f[0] && n<=f[1];
@@ -742,8 +753,7 @@ function ligarPerfil(){
           if (!ok) return;
           state.perfil[k] = n;
         }
-      } else state.perfil[k] = el.value.slice(0,200);
-      resumoPerfil(); salvar();
+      } else state.perfil[k] = el.value.slice(0,200); salvar();
     });
     el.addEventListener("blur", () => { el.classList.remove("inv"); el.removeAttribute("aria-invalid"); el.value = state.perfil[k] ?? ""; });
   }
@@ -759,8 +769,7 @@ function preencherPerfil(){
     inp.addEventListener("change", () => {
       const s = new Set(state.perfil.objetivos);
       inp.checked ? s.add(nome) : s.delete(nome);
-      state.perfil.objetivos = OBJETIVOS.filter(o => s.has(o));
-      resumoPerfil(); salvar();
+      state.perfil.objetivos = OBJETIVOS.filter(o => s.has(o)); salvar();
     });
     ob.append(h("span",{class:"chip"}, inp, h("label",{for:id}, nome)));
   });
@@ -777,7 +786,6 @@ function preencherPerfil(){
     });
     box.append(h("span",{class:"chip"}, inp, h("label",{for:id}, nome)));
   });
-  resumoPerfil();
 }
 
 /* ---------- escolhas de refeição e tempo ---------- */
@@ -897,16 +905,16 @@ $("#btnLimpar").addEventListener("click", () => { state.despensa = []; novos = n
 /* ---------- IA: sugerir refeições ---------- */
 function perfilTexto(){
   const p = state.perfil;
-  const linhas = [
-    `${p.sexo}, ${p.idade} anos, ${p.altura} cm, ${p.peso} kg.`,
+  const corpo = [p.sexo, p.idade ? p.idade+" anos" : "", p.altura ? p.altura+" cm" : "", p.peso ? p.peso+" kg" : ""].filter(Boolean);
+  return [
+    corpo.length ? corpo.join(", ")+"." : "Dados corporais não informados.",
     `Objetivos: ${p.objetivos.length ? p.objetivos.join(", ") : "não informado"}.`,
     `Restrições: ${p.restr || "nenhuma"}.`,
     p.nao ? `Não gosta de: ${p.nao}.` : "",
     `Equipamentos: ${p.equip.length ? p.equip.join(", ") : "só o básico"}.`,
     p.kcal ? `Meta diária de calorias (definida por nutricionista): ${p.kcal} kcal.` : "Sem meta calórica definida.",
     p.prot ? `Meta diária de proteína (definida por nutricionista): ${p.prot} g.` : "Sem meta de proteína definida."
-  ];
-  return linhas.filter(Boolean).join("\n");
+  ].filter(Boolean).join("\n");
 }
 const SVG_OK = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="var(--surface)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const SVG_LIVRO = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
@@ -1070,7 +1078,7 @@ function acoes(r, ia, aoDesfavoritar){
   return card;
 }
 function atualizaContaFav(){
-  const b = $("#contFav"); if (b) b.textContent = state.prefs.favoritos.length;
+  const b = $("#contFav"); if (b){ b.textContent = state.prefs.favoritos.length; b.toggleAttribute("data-zero", !state.prefs.favoritos.length); }
 }
 function irParaAba(nome){
   const desk = window.matchMedia("(min-width:900px)").matches;
@@ -1091,6 +1099,19 @@ dlgD.addEventListener("click", e => { if (e.target===dlgD) fechaDlg(dlgD, $("#bt
 dlgD.addEventListener("close", () => $("#btnDesp").setAttribute("aria-expanded","false"));
 $("#btnPerfil").addEventListener("click", () => abreDlg(dlgP, $("#btnPerfil")));
 $("#btnFechaPerfil").addEventListener("click", () => fechaDlg(dlgP, $("#btnPerfil")));
+let apagarArmado = null;
+$("#btnApagar").addEventListener("click", () => {
+  const b = $("#btnApagar");
+  if (!apagarArmado){
+    b.textContent = "Confirmar: apagar tudo"; b.classList.add("on");
+    apagarArmado = setTimeout(() => { apagarArmado = null; b.textContent = "Apagar meus dados deste aparelho"; b.classList.remove("on"); }, 4000);
+    return;
+  }
+  clearTimeout(apagarArmado); apagarArmado = null; b.textContent = "Apagar meus dados deste aparelho"; b.classList.remove("on");
+  state = defaults(); pedido = state.pedido;
+  $("#resultado").textContent = ""; $("#filtros").hidden = true; $("#semSug").hidden = false;
+  pendente = true; salvarJa(); aplicarCarga(); fechaDlg(dlgP, $("#btnPerfil"));
+});
 dlgP.addEventListener("click", e => { if (e.target===dlgP) fechaDlg(dlgP, $("#btnPerfil")); });
 dlgP.addEventListener("close", () => $("#btnPerfil").setAttribute("aria-expanded","false"));
 function abreRec(){ abreDlg(dlgR, $("#btnAddRec")); }
